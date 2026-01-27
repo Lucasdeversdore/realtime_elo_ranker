@@ -1,0 +1,7 @@
+pnpm run libs:ui:build
+
+pnpm run docs:swagger:start
+
+dans un 2ème terminal : 
+
+pnpm run apps:client:dev

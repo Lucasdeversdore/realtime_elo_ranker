@@ -60,7 +60,7 @@ function quickSortPlayers(arr: PlayerData[]): PlayerData[] {
  * @returns The home page component
  */
 export default function Home() {
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
   if (!API_BASE_URL) {
     throw new Error("API_BASE_URL is not defined");
@@ -69,12 +69,14 @@ export default function Home() {
   const [ladderData, setLadderData] = useState<PlayerData[]>([]);
 
   const updateLadderData = useCallback((player: PlayerData) => {
-    setLadderData((prevData) => {
-      return quickSortPlayers(
-        prevData.filter((p) => p.id !== player.id).concat(player)
-      );
-    });
-  }, []);
+if (!player || !player.id) return;
+
+  setLadderData((prevData) => {
+    
+    const newData = prevData.filter((p) => p && p.id !== player.id);
+    return quickSortPlayers([...newData, player]);
+  });
+}, []);
 
   useEffect(() => {
     try {
@@ -90,8 +92,9 @@ export default function Home() {
         console.error(event.message);
         return;
       }
-      if (event.type === RankingEventType.RankingUpdate) {
-        updateLadderData(event.player);
+      if (event.type === RankingEventType.RankingUpdate && event.player) {
+          updateLadderData(event.player);
+          fetchRanking(API_BASE_URL).then(setLadderData);
       }
     };
     eventSource.onerror = (err) => {
