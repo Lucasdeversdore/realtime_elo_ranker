@@ -1,9 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Test, TestingModule } from '@nestjs/testing';
-import { MatchesService } from './matches.service';
+import { MatchesService } from '../src/matches/matches.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Match } from './entities/match.entity';
-import { PlayersService } from '../players/players.service';
+import { Match } from '../src/matches/entities/match.entity';
+import { PlayersService } from '../src/players/players.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   BadRequestException,
@@ -31,14 +35,12 @@ describe('MatchesService', () => {
           provide: PlayersService,
           useValue: { findById: jest.fn(), updateElo: jest.fn() },
         },
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         { provide: EventEmitter2, useValue: { emit: jest.fn() } },
       ],
     }).compile();
 
     service = module.get<MatchesService>(MatchesService);
     playersService = module.get<PlayersService>(PlayersService);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     matchRepo = module.get<Repository<Match>>(getRepositoryToken(Match));
   });
 
@@ -67,7 +69,6 @@ describe('MatchesService', () => {
       id: 'A',
       rank: 1200,
     });
-    // Typage explicite pour éviter "Unsafe member access"
     jest.spyOn(matchRepo, 'save').mockRejectedValue(new Error('Crash DB'));
 
     await expect(
