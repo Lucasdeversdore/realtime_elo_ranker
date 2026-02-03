@@ -1,16 +1,29 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get, Logger } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { MatchesService } from './matches.service';
 
-@Controller('match') // Vérifie bien que c'est 'match' sans S si ton client appelle /api/match
+@ApiTags('Matches')
+@Controller('match')
 export class MatchesController {
+  private readonly logger = new Logger(MatchesController.name);
+
   constructor(private readonly matchesService: MatchesService) {}
 
   @Post()
-  create(@Body() body: { winner: string; loser: string; draw: boolean }) {
-    return this.matchesService.processMatchWithWinner(
-      body.winner,
-      body.loser,
-      body.draw,
+  @ApiOperation({ summary: 'Enregistrer un nouveau match' })
+  @ApiResponse({ status: 201, description: 'Le match a été enregistré et le classement mis à jour.' })
+  async createMatch(@Body() body: { winner: string; loser: string; draw: boolean }) {
+    this.logger.log(`Match reçu : ${body.winner} vs ${body.loser}`);
+    return await this.matchesService.processMatchWithWinner(
+      body.winner, 
+      body.loser, 
+      body.draw
     );
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Récupérer l’historique des matchs' })
+  async findAll() {
+    return await this.matchesService.findAll();
   }
 }

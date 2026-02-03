@@ -3,15 +3,18 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PlayersModule } from './players/players.module';
 import { MatchesModule } from './matches/matches.module';
 import { RankingModule } from './ranking/ranking.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
+    EventEmitterModule.forRoot(),
     TypeOrmModule.forRoot({
-      type: 'better-sqlite3', // <--- Change ceci
-      database: 'database.sqlite',
+      type: 'sqljs',
+      location: 'database.sqlite', // Nom du fichier de sauvegarde
+      autoSave: true, // Sauvegarde automatique à chaque changement
       autoLoadEntities: true,
       synchronize: true,
-      // Supprime la ligne "driver: require('sqlite3')"
+      useLocalForage: false,
     }),
     PlayersModule,
     MatchesModule,
@@ -19,4 +22,3 @@ import { RankingModule } from './ranking/ranking.module';
   ],
 })
 export class AppModule {}
-

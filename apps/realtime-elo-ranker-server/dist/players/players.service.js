@@ -17,19 +17,34 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const player_entity_1 = require("./entities/player.entity");
+const event_emitter_1 = require("@nestjs/event-emitter");
 let PlayersService = class PlayersService {
     playerRepository;
-    constructor(playerRepository) {
+    eventEmitter;
+    constructor(playerRepository, eventEmitter) {
         this.playerRepository = playerRepository;
+        this.eventEmitter = eventEmitter;
     }
     async create(name) {
+        if (!name || name.trim().length === 0) {
+            throw new common_1.BadRequestException("Le nom du joueur ne peut pas être vide.");
+        }
+        const cleanName = name.trim();
+        const existingPlayer = await this.findById(cleanName);
+        if (existingPlayer) {
+            throw new common_1.ConflictException(`Le joueur "${cleanName}" existe déjà dans le classement.`);
+        }
         const initialRank = await this.calculateAverageRank();
         const newPlayer = this.playerRepository.create({
-            id: name,
-            name,
+            id: cleanName,
+            name: cleanName,
             rank: initialRank,
         });
-        return this.playerRepository.save(newPlayer);
+        const savedPlayer = await this.playerRepository.save(newPlayer);
+        this.eventEmitter.emit('ranking.updated', {
+            updatedPlayers: [savedPlayer],
+        });
+        return savedPlayer;
     }
     async findAll() {
         return this.playerRepository.find();
@@ -52,6 +67,7 @@ exports.PlayersService = PlayersService;
 exports.PlayersService = PlayersService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(player_entity_1.Player)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        event_emitter_1.EventEmitter2])
 ], PlayersService);
 //# sourceMappingURL=players.service.js.map

@@ -1,8 +1,10 @@
 import { Repository } from 'typeorm';
 import { Player } from './entities/player.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 export declare class PlayersService {
     private playerRepository;
-    constructor(playerRepository: Repository<Player>);
+    private eventEmitter;
+    constructor(playerRepository: Repository<Player>, eventEmitter: EventEmitter2);
     create(name: string): Promise<Player>;
     findAll(): Promise<Player[]>;
     findById(id: string): Promise<Player | null>;

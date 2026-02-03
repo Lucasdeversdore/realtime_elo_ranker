@@ -12,17 +12,21 @@ const typeorm_1 = require("@nestjs/typeorm");
 const players_module_1 = require("./players/players.module");
 const matches_module_1 = require("./matches/matches.module");
 const ranking_module_1 = require("./ranking/ranking.module");
+const event_emitter_1 = require("@nestjs/event-emitter");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            event_emitter_1.EventEmitterModule.forRoot(),
             typeorm_1.TypeOrmModule.forRoot({
-                type: 'better-sqlite3',
-                database: 'database.sqlite',
+                type: 'sqljs',
+                location: 'database.sqlite',
+                autoSave: true,
                 autoLoadEntities: true,
                 synchronize: true,
+                useLocalForage: false,
             }),
             players_module_1.PlayersModule,
             matches_module_1.MatchesModule,

@@ -11,11 +11,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RankingController = void 0;
 const common_1 = require("@nestjs/common");
-const ranking_service_1 = require("./ranking.service");
+const event_emitter_1 = require("@nestjs/event-emitter");
 const rxjs_1 = require("rxjs");
-const rxjs_2 = require("rxjs");
+const operators_1 = require("rxjs/operators");
+const ranking_service_1 = require("./ranking.service");
 let RankingController = class RankingController {
     rankingService;
+    rankingStream$ = new rxjs_1.Subject();
     constructor(rankingService) {
         this.rankingService = rankingService;
     }
@@ -23,12 +25,15 @@ let RankingController = class RankingController {
         return await this.rankingService.getRanking();
     }
     sendRankingEvents() {
-        return (0, rxjs_1.interval)(2000).pipe((0, rxjs_1.switchMap)(() => (0, rxjs_2.from)(this.rankingService.getRanking())), (0, rxjs_1.map)((ranking) => ({
-            data: {
+        return this.rankingStream$.asObservable().pipe((0, operators_1.map)((data) => ({ data })));
+    }
+    handleRankingUpdate(payload) {
+        payload.updatedPlayers.forEach((player) => {
+            this.rankingStream$.next({
                 type: 'RankingUpdate',
-                player: ranking[0],
-            },
-        })));
+                player: player,
+            });
+        });
     }
 };
 exports.RankingController = RankingController;
@@ -44,6 +49,12 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", rxjs_1.Observable)
 ], RankingController.prototype, "sendRankingEvents", null);
+__decorate([
+    (0, event_emitter_1.OnEvent)('ranking.updated'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], RankingController.prototype, "handleRankingUpdate", null);
 exports.RankingController = RankingController = __decorate([
     (0, common_1.Controller)('ranking'),
     __metadata("design:paramtypes", [ranking_service_1.RankingService])

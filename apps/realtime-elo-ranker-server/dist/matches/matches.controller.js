@@ -11,28 +11,45 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var MatchesController_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MatchesController = void 0;
 const common_1 = require("@nestjs/common");
+const swagger_1 = require("@nestjs/swagger");
 const matches_service_1 = require("./matches.service");
-let MatchesController = class MatchesController {
+let MatchesController = MatchesController_1 = class MatchesController {
     matchesService;
+    logger = new common_1.Logger(MatchesController_1.name);
     constructor(matchesService) {
         this.matchesService = matchesService;
     }
-    create(body) {
-        return this.matchesService.processMatchWithWinner(body.winner, body.loser, body.draw);
+    async createMatch(body) {
+        this.logger.log(`Match reçu : ${body.winner} vs ${body.loser}`);
+        return await this.matchesService.processMatchWithWinner(body.winner, body.loser, body.draw);
+    }
+    async findAll() {
+        return await this.matchesService.findAll();
     }
 };
 exports.MatchesController = MatchesController;
 __decorate([
     (0, common_1.Post)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Enregistrer un nouveau match' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Le match a été enregistré et le classement mis à jour.' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
-], MatchesController.prototype, "create", null);
-exports.MatchesController = MatchesController = __decorate([
+    __metadata("design:returntype", Promise)
+], MatchesController.prototype, "createMatch", null);
+__decorate([
+    (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Récupérer l’historique des matchs' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], MatchesController.prototype, "findAll", null);
+exports.MatchesController = MatchesController = MatchesController_1 = __decorate([
+    (0, swagger_1.ApiTags)('Matches'),
     (0, common_1.Controller)('match'),
     __metadata("design:paramtypes", [matches_service_1.MatchesService])
 ], MatchesController);
