@@ -1,6 +1,6 @@
 # Lucas DEVERS--DORE
 
-## 🛠️ Installation (Environnement Linux)
+##  Installation (Environnement Linux)
 
 Avant de lancer quoi que ce soit, assurez-vous d'avoir installé les packages nécessaires au fonctionnement des nouveaux systèmes (Matchmaking et Événements).
 
